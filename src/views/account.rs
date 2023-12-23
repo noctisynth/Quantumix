@@ -16,18 +16,23 @@ async fn login_handler(mut req: OblivionRequest) -> BaseResponse {
     let db = Database::connect(DATABASE_URL).await.unwrap();
 
     let post = req.get_post();
-    let identify = if !post["identify"].is_null() {
-        post["identify"].as_str().unwrap().to_string()
-    } else {
-        return BaseResponse::JsonResponse(
-            json!({"status": false, "msg": "未接收到用户名或Tuta邮箱!"}),
-            403,
-        );
+    let identify = match post["identify"].as_str() {
+        Some(result) => result,
+        None => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "未接收到用户名或Tuta邮箱!"}),
+                403,
+            );
+        }
     };
-    let password = if !post["password"].is_null() {
-        post["password"].as_str().unwrap().to_string()
-    } else {
-        return BaseResponse::JsonResponse(json!({"status": false, "msg": "未接收到密码!"}), 403);
+    let password = match post["password"].as_str() {
+        Some(result) => result,
+        None => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "未接收到密码!"}),
+                403,
+            )
+        }
     };
     login(&identify, &password, &db).await
 }
@@ -37,40 +42,55 @@ async fn register_handler(mut req: OblivionRequest) -> BaseResponse {
     let db = Database::connect(DATABASE_URL).await.unwrap();
 
     let post = req.get_post();
-    let username = if !post["username"].is_null() {
-        post["username"].as_str().unwrap().to_string()
-    } else {
-        return BaseResponse::JsonResponse(json!({"status": false, "msg": "未接收到用户名!"}), 403);
+    let username = match post["username"].as_str() {
+        Some(result) => result,
+        None => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "未接收到用户名!"}),
+                403,
+            );
+        }
     };
-    let tuta_mail = if !post["tuta_mail"].is_null() {
-        post["tuta_mail"].as_str().unwrap().to_string()
-    } else {
-        return BaseResponse::JsonResponse(
-            json!({"status": false, "msg": "未接收到Tuta邮箱!"}),
-            403,
-        );
+    let tuta_mail = match post["tuta_mail"].as_str() {
+        Some(result) => {
+            if !is_valid_email(&result) {
+                return BaseResponse::JsonResponse(
+                    json!({"status": false, "msg": "邮箱不是合法的Tuta邮箱!"}),
+                    403,
+                );
+            };
+            result
+        }
+        None => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "未接收到Tuta邮箱!"}),
+                403,
+            );
+        }
     };
-    if !is_valid_email(&tuta_mail) {
-        return BaseResponse::JsonResponse(
-            json!({"status": false, "msg": "邮箱不是合法的Tuta邮箱!"}),
-            403,
-        );
-    }
-    let password = if !post["password"].is_null() {
-        post["password"].as_str().unwrap().to_string()
-    } else {
-        return BaseResponse::JsonResponse(json!({"status": false, "msg": "未接收到密码!"}), 403);
+    let password = match post["password"].as_str() {
+        Some(result) => result,
+        None => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "未接收到密码!"}),
+                403,
+            );
+        }
     };
-    let nickname = if !post["nickname"].is_null() {
-        post["nickname"].as_str().unwrap().to_string()
-    } else {
-        return BaseResponse::JsonResponse(json!({"status": false, "msg": "未接收到昵称!"}), 403);
+    let nickname = match post["nickname"].as_str() {
+        Some(result) => result,
+        None => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "未接收到昵称!"}),
+                403,
+            );
+        }
     };
 
     let account_find = Account::find()
-        .filter(AccountColumn::Username.eq(username.clone()))
-        .filter(AccountColumn::TutaMail.eq(tuta_mail.clone()))
-        .filter(AccountColumn::Nickname.eq(nickname.clone()))
+        .filter(AccountColumn::Username.eq(username))
+        .filter(AccountColumn::TutaMail.eq(tuta_mail))
+        .filter(AccountColumn::Nickname.eq(nickname))
         .one(&db)
         .await
         .unwrap();
