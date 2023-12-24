@@ -29,7 +29,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
         run: |
-          git clone https://$GH_TOKEN%@github.com/noctisynth/oblivion-rust.git
+          cd .
+          dir
+          echo "${GH_TOKEN}"
+          git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
           ren oblivion-rust oblivion
           dir
 
