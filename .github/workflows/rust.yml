@@ -32,7 +32,7 @@ jobs:
           cd .
           git clone --depth 1 https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
           mv oblivion-rust oblivion
-          ll
+          ls
 
       - name: Test Project
         run: |
