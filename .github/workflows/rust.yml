@@ -20,23 +20,23 @@ jobs:
         run: |
           cargo --version --verbose
           rustc --version
-      - name: Lint
+      - name: Lint Code
         run: |
           cd .
           # cargo fmt -- --check
-      - name: Install oblivion
+          
+      - name: Test and Build
         env:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
         run: |
+          cd .
+
+          # Install oblivion
           git clone --depth 1 https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
           cargo install --path oblivion-rust
           source $HOME/.cargo/env
-      - name: Test
-        run: |
-          cd .
+
           cargo check
           cargo test --all    
-      - name: Build
-        run: |
-          cd .
+          
           cargo build --release
