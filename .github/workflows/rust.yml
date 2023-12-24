@@ -38,11 +38,14 @@ jobs:
         run: |
           cargo check
           cargo test --all    
+          
       - name: Build Quantumix-Server
         run: |
           cargo build
+          ls target/debug
+          
       - name: Package and Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: Quantumix-Server-${{ github.sha }}
-          path: target/debug/quantumix-server.exe
+          path: ./target/debug/quantumix-server.exe
