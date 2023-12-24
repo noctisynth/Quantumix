@@ -30,7 +30,7 @@ jobs:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
         run: |
           cd .
-          git clone --depth 1 https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
+          git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
           mv oblivion-rust oblivion
           ls
 
@@ -71,7 +71,7 @@ jobs:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
         run: |
           cd .
-          git clone --depth 1 https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
+          git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
           mv oblivion-rust oblivion
           ls
 
