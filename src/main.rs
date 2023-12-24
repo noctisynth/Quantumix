@@ -2,11 +2,13 @@ pub mod exceptions;
 pub mod settings;
 pub mod views {
     pub mod account;
+    pub mod project;
 }
 pub mod utils {
     pub mod email;
     pub mod password;
     pub mod sequence;
+    pub mod session;
 }
 pub mod handlers {
     pub mod account;

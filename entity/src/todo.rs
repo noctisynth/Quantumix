@@ -23,6 +23,57 @@ pub struct Model {
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::account::Entity",
+        from = "Column::UserId",
+        to = "super::account::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Account,
+    #[sea_orm(
+        belongs_to = "super::permission::Entity",
+        from = "Column::Permission",
+        to = "super::permission::Column::Level",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Permission,
+    #[sea_orm(
+        belongs_to = "super::project::Entity",
+        from = "Column::ProjectId",
+        to = "super::project::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Project,
+    #[sea_orm(
+        belongs_to = "Entity",
+        from = "Column::Parent",
+        to = "Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    SelfRef,
+}
+
+impl Related<super::account::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Account.def()
+    }
+}
+
+impl Related<super::permission::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Permission.def()
+    }
+}
+
+impl Related<super::project::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Project.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

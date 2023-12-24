@@ -8,7 +8,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
     pub name: String,
-    pub user_id: Option<i32>,
+    pub leader_id: Option<i32>,
     pub permission: Option<i32>,
     pub priority: i32,
     pub content: String,
@@ -17,9 +17,49 @@ pub struct Model {
     pub is_checked: bool,
     pub created_at: String,
     pub updated_at: String,
+    pub creator_id: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
-pub enum Relation {}
+pub enum Relation {
+    #[sea_orm(
+        belongs_to = "super::account::Entity",
+        from = "Column::LeaderId",
+        to = "super::account::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Account2,
+    #[sea_orm(
+        belongs_to = "super::account::Entity",
+        from = "Column::CreatorId",
+        to = "super::account::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Account1,
+    #[sea_orm(
+        belongs_to = "super::permission::Entity",
+        from = "Column::Permission",
+        to = "super::permission::Column::Level",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Permission,
+    #[sea_orm(has_many = "super::todo::Entity")]
+    Todo,
+}
+
+impl Related<super::permission::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Permission.def()
+    }
+}
+
+impl Related<super::todo::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::Todo.def()
+    }
+}
 
 impl ActiveModelBehavior for ActiveModel {}

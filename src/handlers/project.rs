@@ -6,43 +6,42 @@ use entity::project::{
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 
 use crate::exceptions::QuantumixException;
+use crate::views::project::ProjectData;
 
 pub async fn new_project(
-    name: &str,
-    user_id: Option<i32>,
-    priority: i32,
-    content: &str,
-    start_time: Option<&str>,
+    creator_id: i32,
+    data: ProjectData,
     db: &DatabaseConnection,
 ) -> Result<ProjectModel, QuantumixException> {
     let new_project_model = ProjectActiveModel {
-        name: sea_orm::ActiveValue::Set(name.to_string()),
-        user_id: sea_orm::ActiveValue::Set(user_id),
-        priority: sea_orm::ActiveValue::Set(priority),
-        content: sea_orm::ActiveValue::Set(content.to_string()),
-        start_time: sea_orm::ActiveValue::Set(Some(start_time.unwrap().to_string())),
+        name: sea_orm::ActiveValue::Set(data.name.to_string()),
+        creator_id: sea_orm::ActiveValue::Set(Some(creator_id)),
+        leader_id: sea_orm::ActiveValue::Set(data.leader_id),
+        priority: sea_orm::ActiveValue::Set(data.priority),
+        content: sea_orm::ActiveValue::Set(data.content),
+        start_time: sea_orm::ActiveValue::Set(data.start_time),
         ..Default::default()
     };
     match new_project_model.insert(db).await {
         Ok(model) => Ok(model),
         Err(error) => Err(QuantumixException::CreateFieldFailed {
-            name: name.to_string(),
+            name: data.name,
             error,
         }),
     }
 }
 
 pub async fn take_project(
-    user_id: i32,
+    leader_id: i32,
     project_id: i32,
     db: &DatabaseConnection,
 ) -> Result<bool, QuantumixException> {
-    let user_find = Account::find_by_id(user_id).all(db).await.unwrap();
+    let user_find = Account::find_by_id(leader_id).all(db).await.unwrap();
     if user_find.first().is_none() {
         return Err(QuantumixException::ColumnNotFound {
             table: "account".to_string(),
             field: "id".to_string(),
-            data: user_id.to_string(),
+            data: leader_id.to_string(),
         });
     };
     let project = Project::find_by_id(project_id).one(db).await.unwrap();
@@ -55,7 +54,7 @@ pub async fn take_project(
     } else {
         project.unwrap().into()
     };
-    new_project_model.user_id = sea_orm::ActiveValue::Set(Some(user_id));
+    new_project_model.leader_id = sea_orm::ActiveValue::Set(Some(leader_id));
     new_project_model.update(db).await.unwrap();
     Ok(true)
 }
@@ -99,22 +98,41 @@ pub async fn get_project(
     })
 }
 
-pub async fn filter_projects(
-    user_id: i32,
-    db: &DatabaseConnection,
-) -> Result<Vec<serde_json::Value>, QuantumixException> {
-    let user_find = Account::find_by_id(user_id).one(db).await.unwrap();
+async fn find_account_and_validate(id: i32, db: &DatabaseConnection) -> Result<(), QuantumixException> {
+    let user_find = Account::find_by_id(id).one(db).await.unwrap();
     if user_find.is_none() {
         return Err(QuantumixException::ColumnNotFound {
             table: "account".to_string(),
             field: "id".to_string(),
-            data: user_id.to_string(),
+            data: id.to_string(),
         });
     }
+    Ok(())
+}
+
+pub async fn filter_projects_by_leader_id(
+    leader_id: i32,
+    db: &DatabaseConnection,
+) -> Result<Vec<serde_json::Value>, QuantumixException> {
+    find_account_and_validate(leader_id, db).await?;
     Ok(Project::find()
-        .filter(ProjectColumn::UserId.eq(user_id))
+        .filter(ProjectColumn::LeaderId.eq(leader_id))
         .into_json()
         .all(db)
         .await
         .unwrap())
 }
+
+pub async fn filter_projects_by_creator_id(
+    creator_id: i32,
+    db: &DatabaseConnection,
+) -> Result<Vec<serde_json::Value>, QuantumixException> {
+    find_account_and_validate(creator_id, db).await?;
+    Ok(Project::find()
+        .filter(ProjectColumn::CreatorId.eq(creator_id))
+        .into_json()
+        .all(db)
+        .await
+        .unwrap())
+}
+
