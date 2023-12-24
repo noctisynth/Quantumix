@@ -8,43 +8,35 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
-      
       - name: Update local toolchain
         run: |
           rustup update     
-          
       - name: Toolchain info
         run: |
           cargo --version --verbose
           rustc --version
-
       - name: Lint
         run: |
           cd .
           # cargo fmt -- --check
-
       - name: Install oblivion
         env:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
         run: |
           git clone --depth 1 https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
           cargo install --path oblivion-rust
-
+          source $HOME/.cargo/env
       - name: Test
         run: |
           cd .
           cargo check
           cargo test --all    
-          
       - name: Build
         run: |
           cd .
-          cargo build --release   
+          cargo build --release
