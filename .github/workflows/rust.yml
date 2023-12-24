@@ -44,5 +44,5 @@ jobs:
       - name: Package and Upload
         uses: actions/upload-artifact@v2
         with:
-          name: Quantumix-Server-${{ github.sha | slice(0, 7) }}
+          name: Quantumix-Server-${{ github.sha }}
           path: target/release/
