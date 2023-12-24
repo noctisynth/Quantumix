@@ -6,13 +6,13 @@ pub struct Migration;
 fn created_at(table_name: &str) -> String {
     format!(
         "CREATE TRIGGER IF NOT EXISTS {0}_updated_at
-            AFTER UPDATE ON {0}
-            FOR EACH ROW
-            BEGIN
-                UPDATE {0}
-                SET updated_at = (datetime('now','localtime'))
-                WHERE id = NEW.id;
-            END;",
+        AFTER UPDATE ON {0}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {0}
+            SET updated_at = (datetime('now','localtime'))
+            WHERE id = NEW.id;
+        END;",
         table_name
     )
 }
@@ -82,7 +82,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(Account::Sequence)
-                            .integer()
+                            .string()
                             .not_null()
                             .unique_key(),
                     )
