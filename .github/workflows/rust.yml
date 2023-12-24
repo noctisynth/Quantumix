@@ -9,7 +9,48 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  build:
+  build-win64-debug:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Update local toolchain
+        run: |
+          rustup update     
+      - name: Toolchain info
+        run: |
+          cargo --version --verbose
+          rustc --version
+      - name: Lint Code
+        run: |
+          cd .
+          # cargo fmt -- --check
+
+      - name: Install Oblivion
+        env:
+          GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
+        run: |
+          cd .
+          git clone --depth 1 https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
+          mv oblivion-rust oblivion
+          ls
+
+      - name: Test Project
+        run: |
+          cargo check
+          cargo test --all    
+          
+      - name: Build Quantumix-Server
+        run: |
+          cargo build
+          ls target/debug
+          
+      - name: Package and Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: Quantumix-Server-Win64-Debug-${{ github.sha }}
+          path: ./target/debug/quantumix-server.exe
+          
+  build-linux-debug:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -47,5 +88,5 @@ jobs:
       - name: Package and Upload
         uses: actions/upload-artifact@v3
         with:
-          name: Quantumix-Server-${{ github.sha }}
-          path: ./target/debug/quantumix-server.exe
+          name: Quantumix-Server-Linux-Debug-${{ github.sha }}
+          path: ./target/debug/quantumix-server
