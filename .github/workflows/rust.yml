@@ -24,19 +24,20 @@ jobs:
         run: |
           cd .
           # cargo fmt -- --check
-          
-      - name: Test and Build
+
+      - name: Install Oblivion
         env:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
         run: |
           cd .
-
-          # Install oblivion
           git clone --depth 1 https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
-          cargo install --path oblivion-rust
-          source $HOME/.cargo/env
+          mv oblivion-rust oblivion
+          ll
 
+      - name: Test Project
+        run: |
           cargo check
           cargo test --all    
-          
+      - name: Build Quantumix-Server
+        run: |
           cargo build --release
