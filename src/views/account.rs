@@ -51,7 +51,7 @@ async fn login_handler(mut req: OblivionRequest) -> BaseResponse {
                 return BaseResponse::JsonResponse(json!({"status": false, "msg": error.to_string()}), 403);
             },
         }}),
-        403,
+        200,
     )
 }
 

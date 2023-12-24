@@ -33,7 +33,6 @@ async fn create_project(mut req: OblivionRequest) -> BaseResponse {
         }
     };
     return if let Ok(project_data) = serde_json::from_value::<ProjectData>(data) {
-        println!("{:?}", project_data);
         match new_project(user_id,
                          project_data,
                           &db).await {
@@ -44,8 +43,7 @@ async fn create_project(mut req: OblivionRequest) -> BaseResponse {
                     200,
                 )
             }
-            Err(err) => {
-                println!("{}", err);
+            Err(_err) => {
                 BaseResponse::JsonResponse(
                     json!({"status": false, "msg": "创建异常！请联系管理员！"}),
                     403,

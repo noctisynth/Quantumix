@@ -8,7 +8,7 @@ use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, Qu
 use crate::exceptions::QuantumixException;
 use crate::views::project::ProjectData;
 
-pub async fn new_project(
+pub(crate) async fn new_project(
     creator_id: i32,
     data: ProjectData,
     db: &DatabaseConnection,

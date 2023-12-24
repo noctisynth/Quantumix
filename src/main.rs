@@ -19,6 +19,7 @@ use oblivion::models::router::Router;
 use oblivion::models::server::Server;
 use oblivion::path_route;
 use views::account::{login_handler, register_handler};
+use crate::views::project::create_project;
 
 #[tokio::main]
 async fn main() {
@@ -26,7 +27,7 @@ async fn main() {
 
     path_route!(&mut router, "/login" => login_handler);
     path_route!(&mut router, "/register" => register_handler);
-
+    path_route!(&mut router, "/project/new" => create_project);
     let mut server = Server::new("127.0.0.1", 813, router);
     server.run().await;
 }

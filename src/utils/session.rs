@@ -4,7 +4,7 @@ use entity::session;
 use oblivion::utils::parser::OblivionRequest;
 use sea_orm::{ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter};
 
-pub async fn get_uid(mut req: &mut OblivionRequest, db: &DatabaseConnection) -> Option<i32> {
+pub async fn get_uid(req: &mut OblivionRequest, db: &DatabaseConnection) -> Option<i32> {
     let data = req.get_post();
     let session_key = match data["session_key"].as_str() {
         Some(result) => result,
