@@ -40,9 +40,9 @@ jobs:
           cargo test --all    
       - name: Build Quantumix-Server
         run: |
-          cargo build --release
+          cargo build
       - name: Package and Upload
         uses: actions/upload-artifact@v2
         with:
           name: Quantumix-Server-${{ github.sha }}
-          path: target/release/
+          path: target/debug/quantumix-server.exe
