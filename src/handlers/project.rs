@@ -25,10 +25,10 @@ pub async fn new_project(
     };
     match new_project_model.insert(db).await {
         Ok(model) => Ok(model),
-        Err(error) => Err(QuantumixException::CreateFieldFailed(Some(format!(
-            "创建项目[{}]时出现异常: {}",
-            name, error
-        )))),
+        Err(error) => Err(QuantumixException::CreateFieldFailed {
+            name: name.to_string(),
+            error,
+        }),
     }
 }
 
@@ -39,15 +39,19 @@ pub async fn take_project(
 ) -> Result<bool, QuantumixException> {
     let user_find = Account::find_by_id(user_id).all(db).await.unwrap();
     if user_find.first().is_none() {
-        return Err(QuantumixException::ColumnNotFound(
-            format!("未能在数据库中查找到序列为[{}]的用户", user_id).into(),
-        ));
+        return Err(QuantumixException::ColumnNotFound {
+            table: "account".to_string(),
+            field: "id".to_string(),
+            data: user_id.to_string(),
+        });
     };
     let project = Project::find_by_id(project_id).one(db).await.unwrap();
     let mut new_project_model: ProjectActiveModel = if project.is_none() {
-        return Err(QuantumixException::ColumnNotFound(
-            format!("未能在数据库中查找到序列为[{}]的工程项目", user_id).into(),
-        ));
+        return Err(QuantumixException::ColumnNotFound {
+            table: "project".to_string(),
+            field: "id".to_string(),
+            data: project_id.to_string(),
+        });
     } else {
         project.unwrap().into()
     };
@@ -62,9 +66,11 @@ pub async fn finish_project(
 ) -> Result<bool, QuantumixException> {
     let project_find = Project::find_by_id(project_id).one(db).await.unwrap();
     let mut project: ProjectActiveModel = if project_find.is_none() {
-        return Err(QuantumixException::ColumnNotFound(
-            format!("未能在数据库中查找到序列为[{}]的工程项目", project_id).into(),
-        ));
+        return Err(QuantumixException::ColumnNotFound {
+            table: "project".to_string(),
+            field: "id".to_string(),
+            data: project_id.to_string(),
+        });
     } else {
         project_find.unwrap().into()
     };
@@ -83,9 +89,11 @@ pub async fn get_project(
         .await
         .unwrap();
     Ok(if project_find.is_none() {
-        return Err(QuantumixException::ColumnNotFound(
-            format!("未能在数据库中查找到序列为[{}]的工程项目", project_id).into(),
-        ));
+        return Err(QuantumixException::ColumnNotFound {
+            table: "project".to_string(),
+            field: "id".to_string(),
+            data: project_id.to_string(),
+        });
     } else {
         project_find.unwrap()
     })
@@ -97,9 +105,11 @@ pub async fn filter_projects(
 ) -> Result<Vec<serde_json::Value>, QuantumixException> {
     let user_find = Account::find_by_id(user_id).one(db).await.unwrap();
     if user_find.is_none() {
-        return Err(QuantumixException::ColumnNotFound(
-            format!("用户序列[{}]不存在", user_id).into(),
-        ));
+        return Err(QuantumixException::ColumnNotFound {
+            table: "account".to_string(),
+            field: "id".to_string(),
+            data: user_id.to_string(),
+        });
     }
     Ok(Project::find()
         .filter(ProjectColumn::UserId.eq(user_id))

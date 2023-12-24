@@ -6,13 +6,13 @@ pub struct Migration;
 fn created_at(table_name: &str) -> String {
     format!(
         "CREATE TRIGGER IF NOT EXISTS {0}_updated_at
-            AFTER UPDATE ON {0}
-            FOR EACH ROW
-            BEGIN
-                UPDATE {0}
-                SET updated_at = (datetime('now','localtime'))
-                WHERE id = NEW.id;
-            END;",
+        AFTER UPDATE ON {0}
+        FOR EACH ROW
+        BEGIN
+            UPDATE {0}
+            SET updated_at = (datetime('now','localtime'))
+            WHERE id = NEW.id;
+        END;",
         table_name
     )
 }
@@ -82,7 +82,7 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(Account::Sequence)
-                            .integer()
+                            .string()
                             .not_null()
                             .unique_key(),
                     )
@@ -133,6 +133,37 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(Account::UpdatedAt)
+                            .timestamp()
+                            .extra("DEFAULT (datetime('now','localtime'))")
+                            .not_null(),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+
+        manager
+            .create_table(
+                Table::create()
+                    .table(Session::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Session::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(
+                        ColumnDef::new(Session::SessionKey)
+                            .string()
+                            .not_null()
+                            .unique_key(),
+                    )
+                    .col(ColumnDef::new(Session::UserID).integer().not_null())
+                    .col(ColumnDef::new(Session::UniqueId).string().not_null())
+                    .col(ColumnDef::new(Session::ExpireTime).timestamp().not_null())
+                    .col(
+                        ColumnDef::new(Session::CreatedAt)
                             .timestamp()
                             .extra("DEFAULT (datetime('now','localtime'))")
                             .not_null(),
@@ -326,6 +357,17 @@ enum Account {
 }
 
 #[derive(DeriveIden)]
+enum Session {
+    Table,
+    Id,
+    SessionKey,
+    UserID,
+    UniqueId,
+    ExpireTime,
+    CreatedAt,
+}
+
+#[derive(DeriveIden)]
 enum Project {
     Table,
     Id,
@@ -359,3 +401,22 @@ enum Todo {
     CreatedAt,
     UpdatedAt,
 }
+
+// #[derive(DeriveIden)]
+// enum Task {
+//     Table,
+//     Id,
+//     ProjectID,
+//     UserID,
+//     Name,
+//     Permission,
+//     Priority,
+//     Content,
+//     Description,
+//     Startline,
+//     Endline,
+//     Parent,
+//     IsChecked,
+//     CreatedAt,
+//     UpdatedAt,
+// }

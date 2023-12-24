@@ -1,14 +1,13 @@
-# Oblivion
+# Quantumix
 
-Oblivion Rust SDK
+基于 Rust 的项目分发工程，当前正处于开发中。
 
-## 客户端
+## TODO
 
-### Oblivion `api`
-
-```rust
-use oblivion::api::get;
-use oblivion::api::post;
-use oblivion::api::put;
-use oblivion::api::forward; // 弃用
-```
+1. Task 的数据库迁移
+2. Project 的业务函数
+3. Project 的视图
+4. Todo 的业务函数
+5. Todo 的视图
+6. Task 的业务函数
+7. Task 的视图
