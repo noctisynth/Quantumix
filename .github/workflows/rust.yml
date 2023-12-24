@@ -68,7 +68,7 @@ jobs:
 
       - name: Install Oblivion
         env:
-          GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
+          GH_TOKEN: ${{ secrets.USERNAME_PASSWORD }}
         run: |
           cd .
           git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
