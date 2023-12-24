@@ -5,13 +5,15 @@ use crate::{
         sequence::generate_sequence,
     },
 };
+use chrono::{DateTime, Duration, Local};
 use entity::account::{
     ActiveModel as AccountActiveModel, Column as AccountColumn, Entity as Account,
     Model as AccountModel,
 };
-use oblivion::models::render::BaseResponse;
+use entity::session::{
+    ActiveModel as SessionActiveModel, Column as SessionColumn, Entity as Session,
+};
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
-use serde_json::json;
 
 pub async fn register(
     username: &str,
@@ -36,28 +38,78 @@ pub async fn register(
     Ok(new_user)
 }
 
-pub async fn login(identify: &str, password: &str, db: &DatabaseConnection) -> BaseResponse {
-    let user_find = Account::find()
+pub async fn login(
+    identity: &str,
+    password: &str,
+    unique_id: &str,
+    db: &DatabaseConnection,
+) -> Result<String, QuantumixException> {
+    let user = match Account::find()
         .filter(
             AccountColumn::Username
-                .eq(identify)
-                .or(AccountColumn::TutaMail.eq(identify)),
+                .eq(identity)
+                .or(AccountColumn::TutaMail.eq(identity))
+                .or(AccountColumn::Sequence.eq(identity)),
         )
         .one(db)
         .await
-        .unwrap();
-    let user = if user_find.is_none() {
-        return BaseResponse::JsonResponse(
-            json!({"status": false, "msg": format!("用户[{}]不存在!", identify)}),
-            404,
-        );
-    } else {
-        user_find.unwrap()
+        .unwrap()
+    {
+        Some(user) => user,
+        None => {
+            return Err(QuantumixException::ColumnNotFound {
+                table: "account".to_string(),
+                field: "标识".to_string(),
+                data: identity.to_owned(),
+            });
+        }
     };
 
-    if verify_password(password, &user.password) {
-        BaseResponse::JsonResponse(json!({"status": true, "msg": "身份认证成功!"}), 200)
-    } else {
-        BaseResponse::JsonResponse(json!({"status": false, "msg": "密码错误!"}), 403)
-    }
+    if !verify_password(password, &user.password) {
+        return Err(QuantumixException::AuthenticationFailed {
+            sequence: user.sequence,
+            password: password.to_owned(),
+        });
+    };
+
+    let session_key = match Session::find()
+        .filter(SessionColumn::UniqueId.eq(unique_id))
+        .filter(SessionColumn::UserId.eq(user.id))
+        .one(db)
+        .await
+        .unwrap()
+    {
+        Some(session) => {
+            let expire_time =
+                DateTime::parse_from_str(&session.expire_time, "%Y-%m-%d %H:%M:%S%.f %:z").unwrap();
+
+            if Local::now() > expire_time {
+                let session_key = hash_password(unique_id)?;
+                let mut new_session_model: SessionActiveModel = session.into();
+                new_session_model.expire_time =
+                    sea_orm::ActiveValue::Set((Local::now() + Duration::days(31)).to_string());
+                new_session_model.session_key = sea_orm::ActiveValue::Set(session_key.clone());
+                new_session_model.update(db).await.unwrap();
+                session_key
+            } else {
+                session.session_key
+            }
+        }
+        None => {
+            let session_key = hash_password(unique_id)?;
+            let new_session_model = SessionActiveModel {
+                session_key: sea_orm::ActiveValue::Set(session_key.clone()),
+                user_id: sea_orm::ActiveValue::Set(user.id),
+                unique_id: sea_orm::ActiveValue::Set(unique_id.to_string()),
+                expire_time: sea_orm::ActiveValue::Set(
+                    (Local::now() + Duration::days(31)).to_string(),
+                ),
+                ..Default::default()
+            };
+            new_session_model.insert(db).await.unwrap();
+            session_key
+        }
+    };
+
+    Ok(session_key)
 }

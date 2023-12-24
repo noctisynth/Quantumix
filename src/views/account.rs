@@ -16,7 +16,7 @@ async fn login_handler(mut req: OblivionRequest) -> BaseResponse {
     let db = Database::connect(DATABASE_URL).await.unwrap();
 
     let post = req.get_post();
-    let identify = match post["identify"].as_str() {
+    let identity = match post["identity"].as_str() {
         Some(result) => result,
         None => {
             return BaseResponse::JsonResponse(
@@ -34,7 +34,25 @@ async fn login_handler(mut req: OblivionRequest) -> BaseResponse {
             )
         }
     };
-    login(&identify, &password, &db).await
+    let unique_id = match post["unique_id"].as_str() {
+        Some(result) => result,
+        None => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "未接收到设备标识!"}),
+                403,
+            )
+        }
+    };
+
+    BaseResponse::JsonResponse(
+        json!({"status": true, "msg": "身份验证成功", "session_key": match login(&identity, &password, &unique_id, &db).await {
+            Ok(session_key) => session_key,
+            Err(error) => {
+                return BaseResponse::JsonResponse(json!({"status": false, "msg": error.to_string()}), 403);
+            },
+        }}),
+        403,
+    )
 }
 
 #[async_route]
