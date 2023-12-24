@@ -1,40 +1,14 @@
-#[derive(Clone, Debug, PartialEq)]
+use sea_orm::DbErr;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
 pub enum QuantumixException {
-    ColumnNotFound(Option<String>),
-    CreateFieldFailed(Option<String>),
-    PasswordHashFailed(Option<String>),
-    ColumnExists(Option<String>),
-}
-
-impl QuantumixException {
-    fn write_error(
-        f: &mut core::fmt::Formatter,
-        name: &str,
-        info: &Option<String>,
-    ) -> core::fmt::Result {
-        if info.is_none() {
-            let info = "Unknown";
-            f.write_str(&format!("quantumix::exceptions::{}: {}", name, info))
-        } else {
-            let info = info.clone().unwrap();
-            f.write_str(&format!("quantumix::exceptions::{}: {}", name, info))
-        }
-    }
-}
-
-impl core::fmt::Display for QuantumixException {
-    fn fmt(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result {
-        match self {
-            Self::ColumnNotFound(info) => {
-                QuantumixException::write_error(f, "ColumnNotFound", info)
-            }
-            Self::CreateFieldFailed(info) => {
-                QuantumixException::write_error(f, "CreateFieldFailed", info)
-            }
-            Self::PasswordHashFailed(info) => {
-                QuantumixException::write_error(f, "PasswordHashFailed", info)
-            }
-            Self::ColumnExists(info) => QuantumixException::write_error(f, "ColumnExists", info),
-        }
-    }
+    #[error("未能在表[{name}]中查找到序列为[{id}]的数据")]
+    ColumnNotFound { id: i32, name: String },
+    #[error("创建项目[{name}]时出现异常: {error:?}")]
+    CreateFieldFailed { name: String, error: DbErr },
+    #[error("密码加密时出现异常: {error:?}")]
+    PasswordHashFailed { error: argon2::password_hash::Error },
+    #[error("包含[{feature}]特征的数据已经存在")]
+    ColumnExists { feature: String },
 }

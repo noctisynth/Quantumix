@@ -23,7 +23,7 @@ pub async fn register(
     let password = hash_password(password)?;
 
     let new_user_model = AccountActiveModel {
-        sequence: sea_orm::ActiveValue::Set(generate_sequence(db).await),
+        sequence: sea_orm::ActiveValue::Set(generate_sequence(db).await.to_string()),
         username: sea_orm::ActiveValue::Set(username.to_string()),
         tuta_mail: sea_orm::ActiveValue::Set(tuta_mail.to_string()),
         password: sea_orm::ActiveValue::Set(password),
