@@ -29,10 +29,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
         run: |
-          cd .
           git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
-          mv oblivion-rust oblivion
-          ls
+          ren oblivion-rust oblivion
+          dir
 
       - name: Test Project
         run: |
@@ -42,7 +41,7 @@ jobs:
       - name: Build Quantumix-Server
         run: |
           cargo build
-          ls target/debug
+          dir target/debug
           
       - name: Package and Upload
         uses: actions/upload-artifact@v3
