@@ -40,15 +40,17 @@ pub async fn take_project(
     let user_find = Account::find_by_id(user_id).all(db).await.unwrap();
     if user_find.first().is_none() {
         return Err(QuantumixException::ColumnNotFound {
-            name: "account".to_string(),
-            id: user_id,
+            table: "account".to_string(),
+            field: "id".to_string(),
+            data: user_id.to_string(),
         });
     };
     let project = Project::find_by_id(project_id).one(db).await.unwrap();
     let mut new_project_model: ProjectActiveModel = if project.is_none() {
         return Err(QuantumixException::ColumnNotFound {
-            name: "project".to_string(),
-            id: project_id,
+            table: "project".to_string(),
+            field: "id".to_string(),
+            data: project_id.to_string(),
         });
     } else {
         project.unwrap().into()
@@ -65,8 +67,9 @@ pub async fn finish_project(
     let project_find = Project::find_by_id(project_id).one(db).await.unwrap();
     let mut project: ProjectActiveModel = if project_find.is_none() {
         return Err(QuantumixException::ColumnNotFound {
-            name: "project".to_string(),
-            id: project_id,
+            table: "project".to_string(),
+            field: "id".to_string(),
+            data: project_id.to_string(),
         });
     } else {
         project_find.unwrap().into()
@@ -87,8 +90,9 @@ pub async fn get_project(
         .unwrap();
     Ok(if project_find.is_none() {
         return Err(QuantumixException::ColumnNotFound {
-            name: "project".to_string(),
-            id: project_id,
+            table: "project".to_string(),
+            field: "id".to_string(),
+            data: project_id.to_string(),
         });
     } else {
         project_find.unwrap()
@@ -102,8 +106,9 @@ pub async fn filter_projects(
     let user_find = Account::find_by_id(user_id).one(db).await.unwrap();
     if user_find.is_none() {
         return Err(QuantumixException::ColumnNotFound {
-            name: "account".to_string(),
-            id: user_id,
+            table: "account".to_string(),
+            field: "id".to_string(),
+            data: user_id.to_string(),
         });
     }
     Ok(Project::find()
