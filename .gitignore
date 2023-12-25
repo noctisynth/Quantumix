@@ -1,5 +1,4 @@
 /target
-/oblivion
 *.sqlite3
 
 # Added by cargo
@@ -7,3 +6,4 @@
 # already existing elements were commented out
 
 #/target
+.vscode/settings.json
