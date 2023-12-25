@@ -1,7 +1,7 @@
 use crate::{
     handlers::account::{login, register},
     settings::DATABASE_URL,
-    utils::email::is_valid_email,
+    utils::email::EMAIL_VALIDATOR, // 已替换先前右键验证函数
 };
 use entity::account::{Column as AccountColumn, Entity as Account};
 use futures::future::{BoxFuture, FutureExt};
@@ -71,7 +71,7 @@ async fn register_handler(mut req: OblivionRequest) -> BaseResponse {
     };
     let tuta_mail = match post["tuta_mail"].as_str() {
         Some(result) => {
-            if !is_valid_email(&result) {
+            if !EMAIL_VALIDATOR.validate(&result) {
                 return BaseResponse::JsonResponse(
                     json!({"status": false, "msg": "邮箱不是合法的Tuta邮箱!"}),
                     403,
