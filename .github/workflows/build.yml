@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  
 jobs:
   build-win64-debug:
     if: github.event.repository.fork == false
@@ -28,7 +29,7 @@ jobs:
 
       - name: Clone Oblivion
         env:
-          GH_TOKEN: ${{ secrets.USERNAME_PASSWORD }}
+          GH_TOKEN: "HsiangNianian:CYpreSS.04051929" # ${{ secrets.USERNAME_PASSWORD }}
         run: |
           cd .
           git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
