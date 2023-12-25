@@ -14,12 +14,6 @@ jobs:
     if: github.event.repository.fork == false
     runs-on: windows-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0  # Ensure the full commit history is fetched
-
       - name: Set up Git
         run: |
           git config --global user.email "actions@github.com"
@@ -28,6 +22,12 @@ jobs:
           git submodule update --init --recursive
         env:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0  # Ensure the full commit history is fetched
 
       - name: Update local toolchain
         run: |
@@ -72,12 +72,6 @@ jobs:
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          submodules: true
-          fetch-depth: 0  # Ensure the full commit history is fetched
-
       - name: Set up Git
         run: |
           git config --global user.email "actions@github.com"
@@ -86,6 +80,12 @@ jobs:
           git submodule update --init --recursive
         env:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
+          
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+          fetch-depth: 0  # Ensure the full commit history is fetched
 
       - name: Update local toolchain
         run: |
