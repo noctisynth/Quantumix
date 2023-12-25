@@ -27,14 +27,14 @@ jobs:
           cd .
           # cargo fmt -- --check
 
-      - name: Clone Oblivion
-        env:
-          GH_TOKEN: ${{ secrets.USERNAME_PASSWORD }}
-        run: |
-          cd .
-          git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
-          ren oblivion-rust oblivion
-          dir
+      # - name: Clone Oblivion
+      #   env:
+      #     GH_TOKEN: ${{ secrets.USERNAME_PASSWORD }}
+      #   run: |
+      #     cd .
+      #     git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
+      #     ren oblivion-rust oblivion
+      #     dir
 
       - name: Test Project
         run: |
@@ -69,14 +69,14 @@ jobs:
           cd .
           # cargo fmt -- --check
 
-      - name: Clone Oblivion
-        env:
-          GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
-        run: |
-          cd .
-          git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
-          mv oblivion-rust oblivion
-          ls
+      # - name: Clone Oblivion
+      #   env:
+      #     GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
+      #   run: |
+      #     cd .
+      #     git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
+      #     mv oblivion-rust oblivion
+      #     ls
 
       - name: Test Project
         run: |
