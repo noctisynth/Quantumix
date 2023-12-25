@@ -14,16 +14,30 @@ jobs:
     if: github.event.repository.fork == false
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
         with:
           submodules: true
+          fetch-depth: 0  # Ensure the full commit history is fetched
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git submodule sync
+          git submodule update --init --recursive
+        env:
+          GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
+
       - name: Update local toolchain
         run: |
           rustup update     
+
       - name: Toolchain info
         run: |
           cargo --version --verbose
           rustc --version
+
       - name: Lint Code
         run: |
           cd .
@@ -58,16 +72,30 @@ jobs:
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
         with:
           submodules: true
+          fetch-depth: 0  # Ensure the full commit history is fetched
+
+      - name: Set up Git
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git submodule sync
+          git submodule update --init --recursive
+        env:
+          GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
+
       - name: Update local toolchain
         run: |
           rustup update     
+      
       - name: Toolchain info
         run: |
           cargo --version --verbose
           rustc --version
+
       - name: Lint Code
         run: |
           cd .
