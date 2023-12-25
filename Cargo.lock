@@ -1842,6 +1842,7 @@ dependencies = [
  "chrono",
  "entity",
  "futures",
+ "lazy_static",
  "migration",
  "oblivion",
  "rand",

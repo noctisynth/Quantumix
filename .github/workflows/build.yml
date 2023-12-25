@@ -14,10 +14,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
-          fetch-depth: 0 # Ensure the full commit history is fetched
+          fetch-depth: 0
           token: ${{ secrets.QUANTUMIX_TOKEN }}
 
       - name: Update local toolchain
@@ -54,10 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
-          fetch-depth: 0 # Ensure the full commit history is fetched
+          fetch-depth: 0
           token: ${{ secrets.QUANTUMIX_TOKEN }}
 
       - name: Update local toolchain
@@ -72,6 +72,7 @@ jobs:
       - name: Lint Code
         run: |
           cd .
+          ls
           # cargo fmt -- --check
 
       - name: Test Project

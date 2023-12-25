@@ -1,5 +1,4 @@
 /target
-/oblivion
 *.sqlite3
 
 # Added by cargo
