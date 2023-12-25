@@ -288,10 +288,76 @@ impl MigrationTrait for Migration {
             )
             .await?;
 
+        manager
+            .create_table(
+                Table::create()
+                    .table(Task::Table)
+                    .if_not_exists()
+                    .col(
+                        ColumnDef::new(Task::Id)
+                            .integer()
+                            .not_null()
+                            .auto_increment()
+                            .primary_key(),
+                    )
+                    .col(ColumnDef::new(Task::ProjectID).integer().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(Task::Table, Task::ProjectID)
+                            .to(Project::Table, Project::Id),
+                    )
+                    .col(ColumnDef::new(Task::Name).string().not_null())
+                    .col(ColumnDef::new(Task::UserID).integer().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(Task::Table, Task::UserID)
+                            .to(Account::Table, Account::Id),
+                    )
+                    .col(ColumnDef::new(Task::Permission).integer().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .from(Task::Table, Task::Permission)
+                            .to(Permission::Table, Permission::Level),
+                    )
+                    .col(ColumnDef::new(Task::Priority).integer().not_null())
+                    .col(ColumnDef::new(Task::Content).string().not_null())
+                    .col(ColumnDef::new(Task::Description).string().not_null())
+                    .col(ColumnDef::new(Task::Startline).date_time().null())
+                    .col(ColumnDef::new(Task::Endline).date_time().null())
+                    .col(ColumnDef::new(Task::Parent).integer().null())
+                    .foreign_key(
+                        ForeignKey::create()
+                            .name("child")
+                            .from(Task::Table, Task::Parent)
+                            .to(Task::Table, Task::Id),
+                    )
+                    .col(
+                        ColumnDef::new(Task::IsChecked)
+                            .boolean()
+                            .not_null()
+                            .default(false),
+                    )
+                    .col(
+                        ColumnDef::new(Task::CreatedAt)
+                            .timestamp()
+                            .extra("DEFAULT (datetime('now','localtime'))")
+                            .not_null(),
+                    )
+                    .col(
+                        ColumnDef::new(Task::UpdatedAt)
+                            .timestamp()
+                            .extra("DEFAULT (datetime('now','localtime'))")
+                            .not_null(),
+                    )
+                    .to_owned(),
+            )
+            .await?;
+
         db.execute_unprepared(&created_at("permission")).await?;
         db.execute_unprepared(&created_at("account")).await?;
         db.execute_unprepared(&created_at("project")).await?;
         db.execute_unprepared(&created_at("todo")).await?;
+        db.execute_unprepared(&created_at("task")).await?;
 
         db.execute_unprepared(
             "INSERT OR IGNORE INTO permission (name, level, description) VALUES ('N5 权限', 0, '第五议会至高权限');",
@@ -402,21 +468,21 @@ enum Todo {
     UpdatedAt,
 }
 
-// #[derive(DeriveIden)]
-// enum Task {
-//     Table,
-//     Id,
-//     ProjectID,
-//     UserID,
-//     Name,
-//     Permission,
-//     Priority,
-//     Content,
-//     Description,
-//     Startline,
-//     Endline,
-//     Parent,
-//     IsChecked,
-//     CreatedAt,
-//     UpdatedAt,
-// }
+#[derive(DeriveIden)]
+enum Task {
+    Table,
+    Id,
+    ProjectID,
+    UserID,
+    Name,
+    Permission,
+    Priority,
+    Content,
+    Description,
+    Startline,
+    Endline,
+    Parent,
+    IsChecked,
+    CreatedAt,
+    UpdatedAt,
+}
