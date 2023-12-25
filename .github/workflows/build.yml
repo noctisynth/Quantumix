@@ -2,13 +2,13 @@ name: Rust
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 env:
   CARGO_TERM_COLOR: always
-  
+
 jobs:
   build-win64-debug:
     if: github.event.repository.fork == false
@@ -18,7 +18,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
-          fetch-depth: 0  # Ensure the full commit history is fetched
+          fetch-depth: 0 # Ensure the full commit history is fetched
+
+      - name: Set submodule URL with PAT
+        run: |
+          git config submodule.recurse true
+          git config submodule.oblivion.url https://fu050409:${{ secrets.QUANTUMIX_TOKEN }}@github.com/noctisynth/oblivion.git
 
       - name: Set up Git
         run: |
@@ -26,12 +31,10 @@ jobs:
           git config --global user.name "GitHub Actions"
           git submodule sync
           git submodule update --init --recursive
-        env:
-          GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
 
       - name: Update local toolchain
         run: |
-          rustup update     
+          rustup update
 
       - name: Toolchain info
         run: |
@@ -43,31 +46,22 @@ jobs:
           cd .
           # cargo fmt -- --check
 
-      # - name: Clone Oblivion
-      #   env:
-      #     GH_TOKEN: ${{ secrets.USERNAME_PASSWORD }}
-      #   run: |
-      #     cd .
-      #     git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
-      #     ren oblivion-rust oblivion
-      #     dir
-
       - name: Test Project
         run: |
           cargo check
-          cargo test --all    
-          
+          cargo test --all
+
       - name: Build Quantumix-Server
         run: |
           cargo build
           dir target/debug
-          
+
       - name: Package and Upload
         uses: actions/upload-artifact@v3
         with:
           name: Quantumix-Server-Win64-Debug-${{ github.sha }}
           path: ./target/debug/quantumix-server.exe
-          
+
   build-linux-debug:
     if: github.event.repository.fork == false
     runs-on: ubuntu-latest
@@ -76,7 +70,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: true
-          fetch-depth: 0  # Ensure the full commit history is fetched
+          fetch-depth: 0 # Ensure the full commit history is fetched
+
+      - name: Set submodule URL with PAT
+        run: |
+          git config submodule.recurse true
+          git config submodule.oblivion.url https://fu050409:${{ secrets.QUANTUMIX_TOKEN }}@github.com/noctisynth/oblivion.git
 
       - name: Set up Git
         run: |
@@ -84,13 +83,11 @@ jobs:
           git config --global user.name "GitHub Actions"
           git submodule sync
           git submodule update --init --recursive
-        env:
-          GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
 
       - name: Update local toolchain
         run: |
-          rustup update     
-      
+          rustup update
+
       - name: Toolchain info
         run: |
           cargo --version --verbose
@@ -101,24 +98,15 @@ jobs:
           cd .
           # cargo fmt -- --check
 
-      # - name: Clone Oblivion
-      #   env:
-      #     GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
-      #   run: |
-      #     cd .
-      #     git clone https://${GH_TOKEN}@github.com/noctisynth/oblivion-rust.git
-      #     mv oblivion-rust oblivion
-      #     ls
-
       - name: Test Project
         run: |
           cargo check
-          cargo test --all    
-          
+          cargo test --all
+
       - name: Build Quantumix-Server
         run: |
           cargo build
-          
+
       - name: Package and Upload
         uses: actions/upload-artifact@v3
         with:
