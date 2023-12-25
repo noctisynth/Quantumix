@@ -1,0 +1,4 @@
+[submodule "oblivion"]
+	path = vcpkg
+	url = https://github.com/noctisynth/oblivion-rust
+	branch = main
