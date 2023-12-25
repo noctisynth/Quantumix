@@ -15,10 +15,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: true
-          fetch-depth: 0 # Ensure the full commit history is fetched
+          fetch-depth: 0
+          token: ${{ secrets.QUANTUMIX_TOKEN }}
 
       - name: Set submodule URL with PAT
         run: |
