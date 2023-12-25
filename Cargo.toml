@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-oblivion = { path = "oblivion" }
+oblivion = { path = "oblivion-rust" }
 migration = { path = "migration" }
 entity = { path = "entity" }
 tokio = { version = "1", features = ["full"] }
