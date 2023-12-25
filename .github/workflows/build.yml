@@ -21,18 +21,6 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.QUANTUMIX_TOKEN }}
 
-      # - name: Set submodule URL with PAT
-      #   run: |
-      #     git config submodule.recurse true
-      #     git config submodule.oblivion.url https://fu050409:${{ secrets.QUANTUMIX_TOKEN }}@github.com/noctisynth/oblivion.git
-
-      # - name: Set up Git
-      #   run: |
-      #     git config --global user.email "actions@github.com"
-      #     git config --global user.name "GitHub Actions"
-      #     git submodule sync
-      #     git submodule update --init --recursive
-
       - name: Update local toolchain
         run: |
           rustup update
@@ -73,18 +61,6 @@ jobs:
           submodules: true
           fetch-depth: 0
           token: ${{ secrets.QUANTUMIX_TOKEN }}
-
-      # - name: Set submodule URL with PAT
-      #   run: |
-      #     git config submodule.recurse true
-      #     git config submodule.oblivion.url https://fu050409:${{ secrets.QUANTUMIX_TOKEN }}@github.com/noctisynth/oblivion.git
-
-      # - name: Set up Git
-      #   run: |
-      #     git config --global user.email "actions@github.com"
-      #     git config --global user.name "GitHub Actions"
-      #     git submodule sync
-      #     git submodule update --init --recursive
 
       - name: Update local toolchain
         run: |
