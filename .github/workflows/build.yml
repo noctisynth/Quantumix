@@ -10,6 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 jobs:
   build-win64-debug:
+    if: github.event.repository.fork == false
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,7 +26,7 @@ jobs:
           cd .
           # cargo fmt -- --check
 
-      - name: Install Oblivion
+      - name: Clone Oblivion
         env:
           GH_TOKEN: ${{ secrets.USERNAME_PASSWORD }}
         run: |
@@ -51,6 +52,7 @@ jobs:
           path: ./target/debug/quantumix-server.exe
           
   build-linux-debug:
+    if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -66,7 +68,7 @@ jobs:
           cd .
           # cargo fmt -- --check
 
-      - name: Install Oblivion
+      - name: Clone Oblivion
         env:
           GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
         run: |
@@ -83,7 +85,6 @@ jobs:
       - name: Build Quantumix-Server
         run: |
           cargo build
-          ls target/debug
           
       - name: Package and Upload
         uses: actions/upload-artifact@v3
