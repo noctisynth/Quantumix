@@ -11,7 +11,6 @@ env:
 
 jobs:
   build-win64-debug:
-    if: github.event.repository.fork == false
     runs-on: windows-latest
     steps:
       - name: Checkout Repository
@@ -19,18 +18,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0 # Ensure the full commit history is fetched
-
-      - name: Set submodule URL with PAT
-        run: |
-          git config submodule.recurse true
-          git config submodule.oblivion.url https://fu050409:${{ secrets.QUANTUMIX_TOKEN }}@github.com/noctisynth/oblivion.git
-
-      - name: Set up Git
-        run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git submodule sync
-          git submodule update --init --recursive
+          token: ${{ secrets.QUANTUMIX_TOKEN }}
 
       - name: Update local toolchain
         run: |
@@ -63,7 +51,6 @@ jobs:
           path: ./target/debug/quantumix-server.exe
 
   build-linux-debug:
-    if: github.event.repository.fork == false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -71,18 +58,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0 # Ensure the full commit history is fetched
-
-      - name: Set submodule URL with PAT
-        run: |
-          git config submodule.recurse true
-          git config submodule.oblivion.url https://fu050409:${{ secrets.QUANTUMIX_TOKEN }}@github.com/noctisynth/oblivion.git
-
-      - name: Set up Git
-        run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git submodule sync
-          git submodule update --init --recursive
+          token: ${{ secrets.QUANTUMIX_TOKEN }}
 
       - name: Update local toolchain
         run: |
