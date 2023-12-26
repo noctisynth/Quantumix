@@ -10,7 +10,7 @@ use serde_json::json;
 
 pub(crate) async fn get_uid(req: &mut OblivionRequest, db: &DatabaseConnection) -> Option<i32> {
     if let Some(model) = get_session(req,db).await{
-        Some(model.id)
+        Some(model.user_id)
     } else { None }
 }
 

@@ -1,4 +1,5 @@
 use entity::account::Entity as Account;
+use entity::prelude::Permission;
 use entity::project::{
     ActiveModel as ProjectActiveModel, Column as ProjectColumn, Entity as Project,
     Model as ProjectModel,
@@ -20,6 +21,7 @@ pub(crate) async fn new_project(
         priority: sea_orm::ActiveValue::Set(data.priority),
         content: sea_orm::ActiveValue::Set(data.content),
         start_time: sea_orm::ActiveValue::Set(data.start_time),
+        permission: sea_orm::ActiveValue::Set(data.permission),
         ..Default::default()
     };
     match new_project_model.insert(db).await {
@@ -52,18 +54,31 @@ pub(crate) async fn take_project(
 
 pub(crate) async fn finish_project(
     project_id: i32,
+    permission: i32,
     db: &DatabaseConnection,
 ) -> Result<bool, QuantumixException> {
     let mut project: ProjectActiveModel = get_by_id(project_id, db).await?;
+    if let Some(perm) = project.permission.as_ref() {
+        if permission > *perm {
+           return Ok(false);
+        }
+    }
     project.is_checked = sea_orm::ActiveValue::Set(true);
     project.update(db).await.unwrap();
     Ok(true)
 }
 
 pub(crate) async fn filter_projects(data: FilterProjectData,
+                                    permission: i32,
                                     db: &DatabaseConnection) -> Result<Vec<serde_json::Value>, QuantumixException> {
-    println!("{:?}", data);
     let mut select_project = Project::find();
+    println!("level = {}", permission);
+    select_project = select_project
+        .filter(ProjectColumn::Permission
+            .gte(permission)
+            .or(ProjectColumn::Permission.is_null())
+        );
+
     if let Some(project_id) = data.project_id {
         select_project = select_project.filter(ProjectColumn::Id.eq(project_id));
     }
@@ -73,14 +88,11 @@ pub(crate) async fn filter_projects(data: FilterProjectData,
     if let Some(priority) = data.priority {
         select_project = select_project.filter(ProjectColumn::Priority.eq(priority));
     }
-    if let Some(start_time) = data.start_time {
-        select_project = select_project.filter(ProjectColumn::LeaderId.eq(start_time));
-    }
-    if let Some(name) = data.name{
+    if let Some(name) = data.name {
         select_project = select_project.filter(ProjectColumn::Name.eq(name));
     }
 
-    if let Some(is_checked) = data.is_checked{
+    if let Some(is_checked) = data.is_checked {
         select_project = select_project.filter(ProjectColumn::IsChecked.eq(is_checked));
     }
 
@@ -99,12 +111,12 @@ async fn get_by_id(project_id: i32, db: &DatabaseConnection) -> Result<ProjectAc
         .one(db)
         .await
         .unwrap();
-    let project: ProjectActiveModel =  if result.is_none() {
+    let project: ProjectActiveModel = if result.is_none() {
         return Err(QuantumixException::ColumnNotFound {
             table: "project".to_string(),
             field: "id".to_string(),
             data: project_id.to_string(),
-        })
+        });
     } else {
         result.unwrap().into()
     };

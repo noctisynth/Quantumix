@@ -1,8 +1,9 @@
+use entity::prelude::Account;
 use futures::future::{BoxFuture, FutureExt};
 use oblivion::models::render::BaseResponse;
 use oblivion::oblivion_codegen::async_route;
 use oblivion::utils::parser::OblivionRequest;
-use sea_orm::Database;
+use sea_orm::{Database, EntityTrait};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -16,6 +17,7 @@ pub(crate) struct NewProjectData {
     pub(crate) leader_id: Option<i32>,
     pub(crate) priority: i32,
     pub(crate) content: String,
+    pub(crate) permission: Option<i32>,
     pub(crate) start_time: Option<String>,
 }
 
@@ -27,25 +29,56 @@ pub(crate) async fn new_project_handler(mut req: OblivionRequest) -> BaseRespons
         Some(id) => { id }
         None => { return BaseResponse::JsonResponse(json!({"status": false, "msg": "令牌过期或不存在，请重新登录！"}), 403); }
     };
-    return if let Ok(data) = serde_json::from_value::<NewProjectData>(req.get_post()) {
-        match new_project(user_id, data, &db).await {
-            Ok(result) => {
-                let msg = format!("编号{}-{}创建成功！", result.id, result.name);
-                BaseResponse::JsonResponse(json!({"status": true, "msg": msg }), 200)
-            }
-            Err(_err) => {
-                BaseResponse::JsonResponse(
-                    json!({"status": false, "msg": "创建异常！请联系管理员！"}),
-                    403,
-                )
-            }
+
+    let account = match Account::find_by_id(user_id).one(&db).await.unwrap() {
+        Some(account) => { account }
+        None => {
+            return BaseResponse::JsonResponse(json!({"status": false, "msg": "令牌过期或不存在，请重新登录！"}), 403);
         }
-    } else {
-        BaseResponse::JsonResponse(
-            json!({"status": false, "msg": "参数列表不匹配，请确认必填参数正确填入。"}),
-            403,
-        )
     };
+
+    let new_project_data: NewProjectData = match serde_json::from_value(req.get_post()) {
+        Ok(result) => {
+          match result {
+              Some(data) => { data }
+              None => {
+                  return BaseResponse::JsonResponse(
+                      json!({"status": false, "msg": "参数列表不匹配，请确认必填参数正确填入。"}),
+                      403,
+                  );
+              }
+          }
+        }
+        Err(_) => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "参数列表不匹配，请确认必填参数正确填入。"}),
+                403,
+            );
+        }
+    };
+
+    if let Some(permission) = new_project_data.permission {
+        if account.permission > permission {
+           return BaseResponse::JsonResponse(
+                json!({"status": false, "msg":"项目创建失败！确认参数是否填写正确！" })
+                , 403,
+            );
+        }
+    }
+
+    match new_project(user_id, new_project_data, &db).await {
+        Ok(result) => {
+            let msg = format!("编号{}-{}创建成功！", result.id, result.name);
+            BaseResponse::JsonResponse(json!({"status": true, "msg": msg }), 200)
+        }
+        Err(_) => {
+            BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "创建异常！请联系管理员！"}),
+                403,
+            )
+        }
+    }
+
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -79,22 +112,70 @@ pub(crate) struct FilterProjectData {
     pub(crate) creator_id: Option<i32>,
     pub(crate) leader_id: Option<i32>,
     pub(crate) priority: Option<i32>,
-    pub(crate) start_time: Option<String>,
-    pub(crate) is_checked: Option<bool>
+    pub(crate) is_checked: Option<bool>,
+    pub(crate) permission: Option<i32>,
 }
 
 #[async_route]
 pub(crate) async fn filter_project_handler(mut req: OblivionRequest) -> BaseResponse {
     let db = Database::connect(DATABASE_URL).await.unwrap();
-    if let Some(response) = validate_and_handle_session(&mut req, &db).await {
-        return response;
-    }
+    let user_id = match get_uid(&mut req, &db).await {
+        Some(id) => { id }
+        None => { return BaseResponse::JsonResponse(json!({"status": false, "msg": "令牌过期或不存在，请重新登录！"}), 403); }
+    };
 
-    if let Ok(data) = serde_json::from_value::<FilterProjectData>(req.get_post()) {
-        if let Ok(result) = filter_projects(data, &db).await {
-            return BaseResponse::JsonResponse(json!({"status": true, "msg": "查询成功！", "data": result }), 200);
+    let account = match Account::find_by_id(user_id).one(&db).await.unwrap() {
+        Some(account) => { account }
+        None => {
+            return BaseResponse::JsonResponse(json!({"status": false, "msg": "令牌过期或不存在，请重新登录！"}), 403);
         }
-    }
+    };
+
+    let mut data = match serde_json::from_value::<FilterProjectData>(req.get_post()) {
+        Ok(data) => {data}
+        Err(_) => {
+            return BaseResponse::JsonResponse(
+                json!({"status": false, "msg":"项目创建失败！确认参数是否填写正确！" })
+                , 403,
+            );
+        }
+    };
+
+    let permission = match data.permission {
+        Some(permission) => {
+            if account.permission > permission {
+                account.permission
+            }else { permission  }
+        }
+        None => {
+            account.permission
+        }
+    };
+    println!("FilterData = {:?}",data);
+    return match serde_json::from_value::<FilterProjectData>(req.get_post()) {
+        Ok(data) => {
+            match filter_projects(data, permission, &db).await {
+                Ok(result) => {
+                    BaseResponse::JsonResponse(
+                        json!({"status": true, "msg": "查询成功！", "data": result }),
+                        200,
+                    )
+                }
+                Err(err) => {
+                    BaseResponse::JsonResponse(
+                        json!({"status": false, "msg": "查询失败！"}),
+                        500,
+                    )
+                }
+            }
+        }
+        Err(err) => {
+            BaseResponse::JsonResponse(
+                json!({"status": false, "msg": "查询失败！JSON 解析错误！"}),
+                400,
+            )
+        }
+    };
 
     BaseResponse::JsonResponse(json!({"status": false, "msg": "项目查询失败！" }), 403)
 }
@@ -102,9 +183,18 @@ pub(crate) async fn filter_project_handler(mut req: OblivionRequest) -> BaseResp
 #[async_route]
 pub(crate) async fn finish_project_handler(mut req: OblivionRequest) -> BaseResponse {
     let db = Database::connect(DATABASE_URL).await.unwrap();
-    if let Some(response) = validate_and_handle_session(&mut req, &db).await {
-        return response;
-    }
+    let user_id = match get_uid(&mut req, &db).await {
+        Some(id) => { id }
+        None => { return BaseResponse::JsonResponse(json!({"status": false, "msg": "令牌过期或不存在，请重新登录！"}), 403); }
+    };
+
+    let account = match Account::find_by_id(user_id).one(&db).await.unwrap() {
+        Some(account) => { account }
+        None => {
+            return BaseResponse::JsonResponse(json!({"status": false, "msg": "令牌过期或不存在，请重新登录！"}), 403);
+        }
+    };
+
     let post = req.get_post();
     let project_id = match post["project_id"].as_i64() {
         Some(result) => result,
@@ -115,7 +205,7 @@ pub(crate) async fn finish_project_handler(mut req: OblivionRequest) -> BaseResp
             );
         }
     };
-    if let Ok(result) = finish_project(project_id as i32, &db).await {
+    if let Ok(result) = finish_project(project_id as i32,account.permission, &db).await {
         if result {
             return BaseResponse::JsonResponse(json!({"status": true, "msg": "项目结项成功！" }), 200);
         }
