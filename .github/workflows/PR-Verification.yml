@@ -41,7 +41,6 @@ jobs:
 
       - name: Lint Code
         run: |
-          cd .
           cargo fmt -- --check
 
       - name: Test Project
