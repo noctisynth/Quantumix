@@ -38,8 +38,8 @@ jobs:
         run: |
           cargo check
           cargo test --all
-
-   test-linux:
+          
+  test-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Check if PR comment contains 'run tests'
