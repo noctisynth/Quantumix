@@ -31,8 +31,7 @@ jobs:
 
       - name: Lint Code
         run: |
-          cd .
-          # cargo fmt -- --check
+          cargo fmt -- --check
 
       - name: Test Project
         run: |
@@ -71,9 +70,7 @@ jobs:
 
       - name: Lint Code
         run: |
-          cd .
-          ls
-          # cargo fmt -- --check
+          cargo fmt -- --check
 
       - name: Test Project
         run: |

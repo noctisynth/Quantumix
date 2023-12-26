@@ -1,10 +1,10 @@
-use regex::Regex;
 use lazy_static::lazy_static;
+use regex::Regex;
 pub struct EmailValidatorCacher {
     regex: &'static Regex,
 }
 
-impl EmailValidatorCacher{
+impl EmailValidatorCacher {
     pub fn new() -> EmailValidatorCacher {
         // 使用 lazy load 减少资源开销
         lazy_static! {
@@ -27,18 +27,17 @@ lazy_static! {
     // 导出初始化静态 邮件检查器， 避免每次重新生成
 }
 
-
 #[cfg(test)]
 mod tests {
     // 添加测试
     use super::EMAIL_VALIDATOR;
-    
+
     #[test]
     fn test_email_validator() {
         let email1 = "test@tutanota.com";
         let email2 = "test@tuta.com";
         let email3 = "test@test.com";
-        
+
         assert!(EMAIL_VALIDATOR.validate(email1));
         assert!(EMAIL_VALIDATOR.validate(email2));
         assert!(!EMAIL_VALIDATOR.validate(email3));
