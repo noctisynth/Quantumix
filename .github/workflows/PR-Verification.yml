@@ -11,7 +11,9 @@ jobs:
     steps:
       - name: Check if PR has been approved
         id: check_approval
-        run: echo ::set-output name=approved::$(echo "${{ github.event.review.state }}" | grep -c 'approved')
+        if: github.event.review.state == 'approved'
+        run: |
+          echo "::set-output name=approved::1"
 
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -44,8 +46,10 @@ jobs:
     steps:
       - name: Check if PR has been approved
         id: check_approval
-        run: echo ::set-output name=approved::$(echo "${{ github.event.review.state }}" | grep -c 'approved')
-
+        if: github.event.review.state == 'approved'
+        run: |
+          echo "::set-output name=approved::1"
+          
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
