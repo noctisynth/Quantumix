@@ -1,8 +1,6 @@
-name: Build and Debug
+name: PR Verification
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -10,15 +8,27 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build-win64-debug:
+  test-win64:
     runs-on: windows-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        if: github.event.repository.fork == false
         with:
           submodules: true
           fetch-depth: 0
           token: ${{ secrets.QUANTUMIX_TOKEN }}
+
+      - name: Checkout Repository In Forkee
+        uses: actions/checkout@v4
+        if: github.event.repository.fork == true
+        with:
+          submodules: true
+          fetch-depth: 0
+          token: ${{ env.GH_TOKEN }}
+
+      - name: Set up downstream repository secrets
+        run: echo "GH_TOKEN=${{ secrets.QUANTUMIX_TOKEN }}" >> $GITHUB_ENV
 
       - name: Update local toolchain
         run: |
@@ -38,26 +48,27 @@ jobs:
           cargo check
           cargo test --all
 
-      - name: Build Quantumix-Server
-        run: |
-          cargo build
-          dir target/debug
-
-      - name: Package and Upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: Quantumix-Server-Win64-Debug-${{ github.sha }}
-          path: ./target/debug/quantumix-server.exe
-
-  build-linux-debug:
+  test-linux:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        if: github.event.repository.fork == false
         with:
           submodules: true
           fetch-depth: 0
           token: ${{ secrets.QUANTUMIX_TOKEN }}
+
+      - name: Checkout Repository In Forkee
+        uses: actions/checkout@v4
+        if: github.event.repository.fork == true
+        with:
+          submodules: true
+          fetch-depth: 0
+          token: ${{ env.GH_TOKEN }}
+
+      - name: Set up downstream repository secrets
+        run: echo "GH_TOKEN=${{ secrets.QUANTUMIX_TOKEN }}" >> $GITHUB_ENV
 
       - name: Update local toolchain
         run: |
@@ -76,13 +87,3 @@ jobs:
         run: |
           cargo check
           cargo test --all
-
-      - name: Build Quantumix-Server
-        run: |
-          cargo build
-
-      - name: Package and Upload
-        uses: actions/upload-artifact@v3
-        with:
-          name: Quantumix-Server-Linux-Debug-${{ github.sha }}
-          path: ./target/debug/quantumix-server
