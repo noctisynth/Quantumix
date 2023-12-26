@@ -8,7 +8,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build-win64-debug:
+  test-win64:
     runs-on: windows-latest
     if: github.event.repository.fork == false
     steps:
@@ -49,7 +49,7 @@ jobs:
           name: Quantumix-Server-Win64-Debug-${{ github.sha }}
           path: ./target/debug/quantumix-server.exe
 
-  build-linux-debug:
+  test-linux:
     runs-on: ubuntu-latest
     if: github.event.repository.fork == false
     steps:
