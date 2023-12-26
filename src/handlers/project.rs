@@ -1,13 +1,13 @@
-use entity::account::Entity as Account;
-use entity::prelude::Permission;
+use crate::exceptions::QuantumixException;
+use crate::utils::account as account_utils;
+use crate::views::project::{FilterProjectData, NewProjectData};
 use entity::project::{
     ActiveModel as ProjectActiveModel, Column as ProjectColumn, Entity as Project,
     Model as ProjectModel,
 };
-use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter};
-
-use crate::exceptions::QuantumixException;
-use crate::views::project::{FilterProjectData, NewProjectData};
+use sea_orm::{
+    ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
+};
 
 pub(crate) async fn new_project(
     creator_id: i32,
@@ -38,16 +38,13 @@ pub(crate) async fn take_project(
     project_id: i32,
     db: &DatabaseConnection,
 ) -> Result<bool, QuantumixException> {
-    let user_find = Account::find_by_id(leader_id).all(db).await.unwrap();
-    if user_find.first().is_none() {
-        return Err(QuantumixException::ColumnNotFound {
-            table: "account".to_string(),
-            field: "id".to_string(),
-            data: leader_id.to_string(),
-        });
-    };
+    let user = account_utils::find_account(leader_id, db).await?;
     let mut new_project_model: ProjectActiveModel = get_by_id(project_id, db).await?;
-    new_project_model.leader_id = sea_orm::ActiveValue::Set(Some(leader_id));
+    if let Some(_) = new_project_model.leader_id.unwrap() {
+        println!("已被承接");
+        return Ok(false);
+    }
+    new_project_model.leader_id = sea_orm::ActiveValue::Set(Some(user.id));
     new_project_model.update(db).await.unwrap();
     Ok(true)
 }
@@ -58,9 +55,14 @@ pub(crate) async fn finish_project(
     db: &DatabaseConnection,
 ) -> Result<bool, QuantumixException> {
     let mut project: ProjectActiveModel = get_by_id(project_id, db).await?;
+
+    let is_checked = project.is_checked.unwrap();
+    if is_checked {
+        return Ok(false);
+    }
     if let Some(perm) = project.permission.as_ref() {
         if permission > *perm {
-           return Ok(false);
+            return Ok(false);
         }
     }
     project.is_checked = sea_orm::ActiveValue::Set(true);
@@ -68,16 +70,18 @@ pub(crate) async fn finish_project(
     Ok(true)
 }
 
-pub(crate) async fn filter_projects(data: FilterProjectData,
-                                    permission: i32,
-                                    db: &DatabaseConnection) -> Result<Vec<serde_json::Value>, QuantumixException> {
+pub(crate) async fn filter_projects(
+    data: FilterProjectData,
+    permission: i32,
+    db: &DatabaseConnection,
+) -> Result<Vec<serde_json::Value>, QuantumixException> {
     let mut select_project = Project::find();
-    println!("level = {}", permission);
-    select_project = select_project
-        .filter(ProjectColumn::Permission
+
+    select_project = select_project.filter(
+        ProjectColumn::Permission
             .gte(permission)
-            .or(ProjectColumn::Permission.is_null())
-        );
+            .or(ProjectColumn::Permission.is_null()),
+    );
 
     if let Some(project_id) = data.project_id {
         select_project = select_project.filter(ProjectColumn::Id.eq(project_id));
@@ -106,11 +110,11 @@ pub(crate) async fn filter_projects(data: FilterProjectData,
     Ok(projects)
 }
 
-async fn get_by_id(project_id: i32, db: &DatabaseConnection) -> Result<ProjectActiveModel, QuantumixException> {
-    let result = Project::find_by_id(project_id)
-        .one(db)
-        .await
-        .unwrap();
+async fn get_by_id(
+    project_id: i32,
+    db: &DatabaseConnection,
+) -> Result<ProjectActiveModel, QuantumixException> {
+    let result = Project::find_by_id(project_id).one(db).await.unwrap();
     let project: ProjectActiveModel = if result.is_none() {
         return Err(QuantumixException::ColumnNotFound {
             table: "project".to_string(),
@@ -121,19 +125,4 @@ async fn get_by_id(project_id: i32, db: &DatabaseConnection) -> Result<ProjectAc
         result.unwrap().into()
     };
     Ok(project)
-}
-
-async fn find_account_and_validate(id: i32, db: &DatabaseConnection) -> Result<(), QuantumixException> {
-    let user_find = Account::find_by_id(id)
-        .one(db)
-        .await
-        .unwrap();
-    if user_find.is_none() {
-        return Err(QuantumixException::ColumnNotFound {
-            table: "account".to_string(),
-            field: "id".to_string(),
-            data: id.to_string(),
-        });
-    }
-    Ok(())
 }

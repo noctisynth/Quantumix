@@ -9,7 +9,7 @@ pub struct Model {
     pub id: i32,
     pub project_id: Option<i32>,
     pub name: String,
-    pub user_id: Option<i32>,
+    pub owner_id: Option<i32>,
     pub permission: Option<i32>,
     pub priority: i32,
     pub content: String,
@@ -20,18 +20,27 @@ pub struct Model {
     pub is_checked: bool,
     pub created_at: String,
     pub updated_at: String,
+    pub creator_id: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
     #[sea_orm(
         belongs_to = "super::account::Entity",
-        from = "Column::UserId",
+        from = "Column::OwnerId",
         to = "super::account::Column::Id",
         on_update = "NoAction",
         on_delete = "NoAction"
     )]
-    Account,
+    Account2,
+    #[sea_orm(
+        belongs_to = "super::account::Entity",
+        from = "Column::CreatorId",
+        to = "super::account::Column::Id",
+        on_update = "NoAction",
+        on_delete = "NoAction"
+    )]
+    Account1,
     #[sea_orm(
         belongs_to = "super::permission::Entity",
         from = "Column::Permission",
@@ -56,12 +65,6 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     SelfRef,
-}
-
-impl Related<super::account::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Account.def()
-    }
 }
 
 impl Related<super::permission::Entity> for Entity {

@@ -30,19 +30,11 @@ pub enum Relation {
         on_delete = "NoAction"
     )]
     Permission,
-    #[sea_orm(has_many = "super::todo::Entity")]
-    Todo,
 }
 
 impl Related<super::permission::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::Permission.def()
-    }
-}
-
-impl Related<super::todo::Entity> for Entity {
-    fn to() -> RelationDef {
-        Relation::Todo.def()
     }
 }
 
