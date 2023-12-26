@@ -48,7 +48,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-          token: ${{ secrets.QUANTUMIX_TOKEN }}
+          token: ${{ secrets.QUANTUMIX_TOKEN }} if ${{ github.event.repository.fork == 'false' }} else ${{ env.GH_TOKEN }}
 
       - name: Set up downstream repository secrets
         run: echo "GH_TOKEN=${{ secrets.QUANTUMIX_TOKEN }}" >> $GITHUB_ENV
