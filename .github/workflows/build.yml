@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN }}
 
 jobs:
   build-win64-debug:
@@ -18,7 +19,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-          token: ${{ secrets.QUANTUMIX_TOKEN }}
+          token: ${GH_TOKEN}
 
       - name: Update local toolchain
         run: |
@@ -57,7 +58,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-          token: ${{ secrets.QUANTUMIX_TOKEN }}
+          token: ${GH_TOKEN}
 
       - name: Update local toolchain
         run: |
