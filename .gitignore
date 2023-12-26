@@ -1,5 +1,6 @@
 /target
 *.sqlite3
+*_test.rs
 
 # Added by cargo
 #

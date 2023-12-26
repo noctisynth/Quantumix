@@ -17,4 +17,6 @@ pub enum QuantumixException {
     ColumnExists { feature: String },
     #[error("账户序列[{sequence}]使用密钥[{password}]身份验证失败")]
     AuthenticationFailed { sequence: String, password: String },
+    #[error("权限标记未传入")]
+    MissingPermissionField,
 }
