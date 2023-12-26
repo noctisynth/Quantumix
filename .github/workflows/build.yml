@@ -19,7 +19,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-          token: ${GH_TOKEN}
+          token: ${{ env.GH_TOKEN }}
 
       - name: Update local toolchain
         run: |
@@ -58,7 +58,7 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-          token: ${GH_TOKEN}
+          token: ${{ env.GH_TOKEN }}
 
       - name: Update local toolchain
         run: |
