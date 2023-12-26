@@ -1,18 +1,18 @@
-name: PR Verification
+name: Run Tests On PR Comment
 
 on:
-  issue_comment:
-    types: [created]
-  workflow_dispatch:
-
-env:
-  CARGO_TERM_COLOR: always
+  pull_request_review_comment:
+    types:
+      - created
 
 jobs:
   test-win64:
     runs-on: windows-latest
-    if: github.event.comment.body == 'run tests'
     steps:
+      - name: Check if PR comment contains 'run tests'
+        id: check_comment
+        run: echo ::set-output name=run_tests::$(echo "${{ github.event.comment.body }}" | grep -c 'run tests')
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -34,14 +34,18 @@ jobs:
           cargo fmt -- --check
 
       - name: Test Project
+        if: steps.check_comment.outputs.run_tests == '1'
         run: |
           cargo check
           cargo test --all
 
-  test-linux:
+   test-linux:
     runs-on: ubuntu-latest
-    if: github.event.comment.body == 'run tests'
     steps:
+      - name: Check if PR comment contains 'run tests'
+        id: check_comment
+        run: echo ::set-output name=run_tests::$(echo "${{ github.event.comment.body }}" | grep -c 'run tests')
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
