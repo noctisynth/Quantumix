@@ -16,7 +16,15 @@ jobs:
         with:
           submodules: true
           fetch-depth: 0
-          token: ${{ secrets.QUANTUMIX_TOKEN }} if ${{ github.event.repository.fork == 'false' }} else ${{ env.GH_TOKEN }}
+          token: ${{ secrets.QUANTUMIX_TOKEN }}
+
+      - name: Checkout Repository In Forkee
+        uses: actions/checkout@v4
+        if: github.event.repository.fork == 'true'
+        with:
+          submodules: true
+          fetch-depth: 0
+          token: ${{ env.GH_TOKEN }}
 
       - name: Set up downstream repository secrets
         run: echo "GH_TOKEN=${{ secrets.QUANTUMIX_TOKEN }}" >> $GITHUB_ENV
@@ -45,10 +53,19 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        if: github.event.repository.fork == 'false'
         with:
           submodules: true
           fetch-depth: 0
-          token: ${{ secrets.QUANTUMIX_TOKEN }} if ${{ github.event.repository.fork == 'false' }} else ${{ env.GH_TOKEN }}
+          token: ${{ secrets.QUANTUMIX_TOKEN }}
+
+      - name: Checkout Repository In Forkee
+        uses: actions/checkout@v4
+        if: github.event.repository.fork == 'true'
+        with:
+          submodules: true
+          fetch-depth: 0
+          token: ${{ env.GH_TOKEN }}
 
       - name: Set up downstream repository secrets
         run: echo "GH_TOKEN=${{ secrets.QUANTUMIX_TOKEN }}" >> $GITHUB_ENV
