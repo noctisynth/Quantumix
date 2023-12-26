@@ -4,10 +4,9 @@
 
 ## TODO
 
-1. Task 的数据库迁移
-2. Project 的业务函数
-3. Project 的视图
-4. Todo 的业务函数
-5. Todo 的视图
-6. Task 的业务函数
-7. Task 的视图
+1. Project 的业务函数 🚧
+2. Project 的视图 🚧
+3. Todo 的业务函数
+4. Todo 的视图
+5. Task 的业务函数
+6. Task 的视图
