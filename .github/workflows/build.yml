@@ -8,7 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+  GH_TOKEN: ${{ secrets.QUANTUMIX_TOKEN  }}
 
 jobs:
   build-win64-debug:
