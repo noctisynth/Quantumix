@@ -113,3 +113,24 @@ pub async fn login(
 
     Ok(session_key)
 }
+
+pub async fn session(session_key: &str, db: &DatabaseConnection) -> bool {
+    match Session::find()
+        .filter(SessionColumn::SessionKey.eq(session_key))
+        .one(db)
+        .await
+        .unwrap()
+    {
+        Some(session) => {
+            let expire_time =
+                DateTime::parse_from_str(&session.expire_time, "%Y-%m-%d %H:%M:%S%.f %:z").unwrap();
+
+            if Local::now() > expire_time {
+                false
+            } else {
+                true
+            }
+        }
+        None => false,
+    }
+}

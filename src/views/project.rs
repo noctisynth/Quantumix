@@ -2,7 +2,7 @@ use futures::future::{BoxFuture, FutureExt};
 use oblivion::models::render::BaseResponse;
 use oblivion::oblivion_codegen::async_route;
 use oblivion::utils::parser::OblivionRequest;
-use sea_orm::{Database, EntityTrait};
+use sea_orm::Database;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 

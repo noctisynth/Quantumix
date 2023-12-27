@@ -1,5 +1,5 @@
 use crate::{
-    handlers::account::{login, register},
+    handlers::account::{login, register, session},
     settings::DATABASE_URL,
     utils::email::EMAIL_VALIDATOR, // 已替换先前右键验证函数
 };
@@ -125,4 +125,20 @@ async fn register_handler(mut req: OblivionRequest) -> BaseResponse {
         json!({"status": true, "msg": format!("用户[{}]创建成功!", account.username)}),
         200,
     )
+}
+
+#[async_route]
+async fn session_handler(mut req: OblivionRequest) -> BaseResponse {
+    let db = Database::connect(DATABASE_URL).await.unwrap();
+
+    let post = req.get_post();
+    let session_key = match post["session_key"].as_str() {
+        Some(session_key) => session_key,
+        None => return BaseResponse::JsonResponse(json!({"status": false}), 403),
+    };
+
+    let status = session(session_key, &db).await;
+    let status_code = if status { 200 } else { 403 };
+
+    BaseResponse::JsonResponse(json!({"status": status}), status_code)
 }
