@@ -14,6 +14,7 @@ use entity::session::{
     ActiveModel as SessionActiveModel, Column as SessionColumn, Entity as Session,
 };
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use serde_json::{json, Value};
 
 pub async fn register(
     username: &str,
@@ -133,4 +134,37 @@ pub async fn session(session_key: &str, db: &DatabaseConnection) -> bool {
         }
         None => false,
     }
+}
+
+pub async fn account(
+    session_key: &str,
+    db: &DatabaseConnection,
+) -> Result<Value, QuantumixException> {
+    let session = match Session::find()
+        .filter(SessionColumn::SessionKey.eq(session_key))
+        .one(db)
+        .await
+        .unwrap()
+    {
+        Some(session) => {
+            let expire_time =
+                DateTime::parse_from_str(&session.expire_time, "%Y-%m-%d %H:%M:%S%.f %:z").unwrap();
+
+            if Local::now() > expire_time {
+                return Ok(json!({"status": false, "msg": "登录已经过期，请重新登录！"}));
+            } else {
+                session
+            }
+        }
+        None => return Ok(json!({"status": false, "msg": "窗口不存在！"})),
+    };
+
+    let account = Account::find()
+        .filter(AccountColumn::Id.eq(session.user_id))
+        .one(db)
+        .await
+        .unwrap()
+        .unwrap();
+
+    Ok(json!({"username": account.username}).to_owned())
 }

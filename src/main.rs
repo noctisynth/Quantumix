@@ -28,7 +28,7 @@ use crate::views::todo::{
 use oblivion::models::router::Router;
 use oblivion::models::server::Server;
 use oblivion::path_route;
-use views::account::{login_handler, register_handler, session_handler};
+use views::account::{account_handler, login_handler, register_handler, session_handler};
 
 #[tokio::main]
 async fn main() {
@@ -37,6 +37,7 @@ async fn main() {
     path_route!(&mut router, "/login" => login_handler);
     path_route!(&mut router, "/register" => register_handler);
     path_route!(&mut router, "/session" => session_handler);
+    path_route!(&mut router, "/account" => account_handler);
     path_route!(&mut router, "/todo/new" => new_todo_handler);
     path_route!(&mut router, "/todo/take" => take_todo_handler);
     path_route!(&mut router, "/todo/filter" => filter_todos_handler);
@@ -45,6 +46,7 @@ async fn main() {
     path_route!(&mut router, "/project/take" => take_project_handler);
     path_route!(&mut router, "/project/filter" => filter_projects_handler);
     path_route!(&mut router, "/project/finish" => finish_project_handler);
+
     let mut server = Server::new("127.0.0.1", 813, router);
     server.run().await;
 }
