@@ -69,23 +69,6 @@ pub(crate) async fn get_session(
     }
 }
 
-pub(crate) async fn validate_session(
-    db: &DatabaseConnection,
-    session_key: &str,
-    delete_expired: bool,
-) -> Result<bool, DbErr> {
-    match validate_and_return_session(db, session_key, delete_expired).await {
-        Ok(session) => {
-            if session == None {
-                Ok(false)
-            } else {
-                Ok(true)
-            }
-        }
-        Err(err) => Err(err),
-    }
-}
-
 pub(crate) async fn validate_and_handle_session(
     req: &mut OblivionRequest,
     db: &DatabaseConnection,
