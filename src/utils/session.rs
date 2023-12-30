@@ -52,20 +52,15 @@ pub(crate) async fn get_session(
     db: &DatabaseConnection,
 ) -> Option<session::Model> {
     let data = req.get_post();
-    let session_key = match data["session_key"].as_str() {
-        Some(result) => result,
-        None => {
-            return None;
-        }
-    };
-    match validate_and_return_session(&db, session_key, true).await {
-        Ok(session) => {
-            return match session {
-                Some(model) => Some(model),
-                None => None,
-            };
-        }
-        Err(_err) => None,
+
+    match data["session_key"].as_str() {
+        Some(session_key) => {
+            match validate_and_return_session(&db, session_key, true).await {
+                Ok(model) => model,
+                Err(_) => None,
+            }
+        },
+        None => None,
     }
 }
 
