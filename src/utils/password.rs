@@ -10,7 +10,7 @@ pub fn hash_password(password: &str) -> Result<String, QuantumixException> {
 
     match Argon2::default().hash_password(password.as_bytes(), &salt) {
         Ok(password) => Ok(password.to_string()),
-        Err(error) =>  Err(QuantumixException::PasswordHashFailed { error }),
+        Err(error) => Err(QuantumixException::PasswordHashFailed { error }),
     }
 }
 
