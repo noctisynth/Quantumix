@@ -6,11 +6,10 @@ pub struct EmailValidatorCacher {
 
 impl EmailValidatorCacher {
     pub fn new() -> EmailValidatorCacher {
-        // 使用 lazy load 减少资源开销
         lazy_static! {
-            // 此处添加 多种邮箱判定
-            static ref EMAIL_REGEX: Regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@(tutanota.com|tuta.com)$")
-                .expect("Invalid regex pattern");
+            static ref EMAIL_REGEX: Regex =
+                Regex::new(r"^[a-zA-Z0-9._%+-]+@(tutanota.com|tuta.com)$")
+                    .expect("Invalid regex pattern");
         }
         EmailValidatorCacher {
             regex: &EMAIL_REGEX,
@@ -24,12 +23,10 @@ impl EmailValidatorCacher {
 
 lazy_static! {
     pub static ref EMAIL_VALIDATOR: EmailValidatorCacher = EmailValidatorCacher::new();
-    // 导出初始化静态 邮件检查器， 避免每次重新生成
 }
 
 #[cfg(test)]
 mod tests {
-    // 添加测试
     use super::EMAIL_VALIDATOR;
 
     #[test]
