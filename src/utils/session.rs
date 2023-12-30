@@ -54,11 +54,9 @@ pub(crate) async fn get_session(
     let data = req.get_post();
 
     match data["session_key"].as_str() {
-        Some(session_key) => {
-            match validate_and_return_session(&db, session_key, true).await {
-                Ok(model) => model,
-                Err(_) => None,
-            }
+        Some(session_key) => match validate_and_return_session(&db, session_key, true).await {
+            Ok(model) => model,
+            Err(_) => None,
         },
         None => None,
     }
