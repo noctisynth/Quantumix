@@ -12,7 +12,7 @@ pub async fn generate_sequence(db: &DatabaseConnection) -> i32 {
     loop {
         let random_number: i32 = rng.gen_range(1000..9999);
 
-        if let Some(_account_find) = Account::find()
+        if let None = Account::find()
             .filter(AccountColumn::Sequence.eq(random_number))
             .one(db)
             .await
