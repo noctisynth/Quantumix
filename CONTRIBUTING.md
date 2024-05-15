@@ -33,9 +33,14 @@ Name branches according to their purpose:
    - Examples: `hotfix/critical-login-issue`, `hotfix/789-critical-bug`
 
 6. **Documentation Branch (docs)**:
+
    - Used for changes related to documentation.
    - Naming format: `docs/short-description`.
    - Example: `docs/update-readme`
+
+7. **Chore Branch (chore)**:
+   - Naming format: `chore/short-description`.
+   - Example: `chore/update-dependencies`
 
 ### Commit Message Convention
 
