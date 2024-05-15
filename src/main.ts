@@ -4,8 +4,9 @@ import "primeicons/primeicons.css";
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import App from "./App.vue";
-import PrimeVue from "primevue/config";
+import router from "./router";
 
+import PrimeVue from "primevue/config";
 import Ripple from "primevue/ripple";
 import ToastService from "primevue/toastservice";
 import Button from "primevue/button";
@@ -28,8 +29,6 @@ app.use(PrimeVue, {
     },
   },
 });
-app.use(pinia);
-
 app.directive("ripple", Ripple);
 app.component("Toast", Toast);
 app.component("Button", Button);
@@ -38,5 +37,8 @@ app.component("StepperPanel", StepperPanel);
 app.component("IconField", IconField);
 app.component("InputIcon", InputIcon);
 app.use(ToastService);
+
+app.use(pinia);
+app.use(router);
 
 app.mount("#app");
