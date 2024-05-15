@@ -166,5 +166,12 @@ pub async fn account(
         .unwrap()
         .unwrap();
 
-    Ok(json!({"username": account.username}).to_owned())
+    Ok(json!(
+        {
+            "username": account.username,
+            "nickname": account.nickname,
+            "favicon": account.favorites_icon,
+        }
+    )
+    .to_owned())
 }
