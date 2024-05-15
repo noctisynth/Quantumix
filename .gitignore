@@ -25,3 +25,6 @@ dist-ssr
 
 # Cargo
 /target/
+
+# unplugin-vue-components
+components.d.ts
