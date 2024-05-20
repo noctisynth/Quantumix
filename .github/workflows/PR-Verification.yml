@@ -1,0 +1,77 @@
+# name: PR Verification
+
+# on:
+#   pull_request_review:
+#     types:
+#       - submitted
+
+# jobs:
+#   test-win64:
+#     runs-on: windows-latest
+#     steps:
+#       - name: Check if PR has been approved
+#         id: check_approval
+#         if: github.event.review.state == 'approved'
+#         run: |
+#           echo "::set-output name=approved::1"
+
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: true
+#           fetch-depth: 0
+#           token: ${{ secrets.QUANTUMIX_TOKEN }}
+
+#       - name: Update local toolchain
+#         run: |
+#           rustup update
+
+#       - name: Toolchain info
+#         run: |
+#           cargo --version --verbose
+#           rustc --version
+
+#       - name: Lint Code
+#         run: |
+#           cargo fmt -- --check
+
+#       - name: Test Project
+#         if: steps.check_approval.outputs.approved == '1'
+#         run: |
+#           cargo check
+#           cargo test --all
+          
+#   test-linux:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Check if PR has been approved
+#         id: check_approval
+#         if: github.event.review.state == 'approved'
+#         run: |
+#           echo "::set-output name=approved::1"
+          
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: true
+#           fetch-depth: 0
+#           token: ${{ secrets.QUANTUMIX_TOKEN }}
+
+#       - name: Update local toolchain
+#         run: |
+#           rustup update
+
+#       - name: Toolchain info
+#         run: |
+#           cargo --version --verbose
+#           rustc --version
+
+#       - name: Lint Code
+#         run: |
+#           cargo fmt -- --check
+
+#       - name: Test Project
+#         if: steps.check_approval.outputs.approved == '1'
+#         run: |
+#           cargo check
+#           cargo test --all
