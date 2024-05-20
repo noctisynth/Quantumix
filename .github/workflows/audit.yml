@@ -24,27 +24,18 @@ concurrency:
 
 jobs:
   audit:
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: [./server/, ./model/, ./src-tauri/]
+
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Run Rust Audit (Server)
-        uses: actions-rust-lang/audit@v1
+      - uses: actions-rust-lang/audit@v1
         with:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          workingDirectory: ./server/
-
-      - name: Run Rust Audit (Client)
-        uses: actions-rust-lang/audit@v1
-        with:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          workingDirectory: ./src-tauri/
-
-      - name: Run Rust Audit (Server)
-        uses: actions-rust-lang/audit@v1
-        with:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          workingDirectory: ./model/
+          workingDirectory: ${{ matrix.workspace }}
