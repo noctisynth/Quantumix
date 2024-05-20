@@ -31,9 +31,9 @@ jobs:
         with:
           submodules: recursive
 
-      - run: cd ./server
-
       - name: Run Audit Check
         uses: rustsec/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          WORK_DIR: ${{ github.workspace }}/server
