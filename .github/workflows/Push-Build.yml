@@ -1,0 +1,91 @@
+# name: Push Buld
+
+# on:
+#   push:
+#     branches: ["main", "dev"]
+
+# env:
+#   CARGO_TERM_COLOR: always
+
+# jobs:
+#   build-win64-debug:
+#     runs-on: windows-latest
+#     if: github.event.repository.fork == false
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: true
+#           fetch-depth: 0
+#           token: ${{ secrets.QUANTUMIX_TOKEN }}
+
+#       - name: Update local toolchain
+#         run: |
+#           rustup update
+
+#       - name: Toolchain info
+#         run: |
+#           cargo --version --verbose
+#           rustc --version
+
+#       - name: Lint Code
+#         run: |
+#           cd .
+#           cargo fmt -- --check
+
+#       - name: Test Project
+#         run: |
+#           cargo check
+#           cargo test --all
+
+#       - name: Build Quantumix-Server
+#         run: |
+#           cargo build
+#           dir target/debug
+
+#       - name: Package and Upload
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: Quantumix-Server-Win64-Debug-${{ github.sha }}
+#           path: ./target/debug/quantumix-server.exe
+
+#   build-linux-debug:
+#     runs-on: ubuntu-latest
+#     if: github.event.repository.fork == false
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
+#         with:
+#           submodules: true
+#           fetch-depth: 0
+#           token: ${{ secrets.QUANTUMIX_TOKEN }}
+
+#       - name: Update local toolchain
+#         run: |
+#           rustup update
+
+#       - name: Toolchain info
+#         run: |
+#           cargo --version --verbose
+#           rustc --version
+
+#       - name: Lint Code
+#         run: |
+#           cd .
+#           ls
+#           cargo fmt -- --check
+
+#       - name: Test Project
+#         run: |
+#           cargo check
+#           cargo test --all
+
+#       - name: Build Quantumix-Server
+#         run: |
+#           cargo build
+
+#       - name: Package and Upload
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: Quantumix-Server-Linux-Debug-${{ github.sha }}
+#           path: ./target/debug/quantumix-server
