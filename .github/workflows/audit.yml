@@ -31,9 +31,10 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Set Workspace
+        run: echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE/server" >> $GITHUB_ENV
+
       - name: Run Audit Check
         uses: rustsec/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          WORK_DIR: ${{ github.workspace }}/server
