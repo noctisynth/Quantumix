@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        workspace: [./server/, ./model/, ./src-tauri/]
+        workspace: [server, src-tauri]
 
     runs-on: ubuntu-latest
     steps:
